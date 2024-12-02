@@ -1,0 +1,22 @@
+.reservationFormContainer {
+    display: flex; /* フレックスボックスを使用 */
+    flex-direction: column; /* 縦方向に配置 */
+    align-items: center; /* 中央揃え */
+    justify-content: center; /* 垂直方向に中央揃え */
+    height: 100%; /* 高さを100%に設定 */
+}
+
+.reservationInputField, .reservationSelectField, .reservationSubmitButton {
+    width: 100%; /* 入力フィールド、ドロップダウン、ボタンの幅を100%に */
+    padding: 10px; /* 内側の余白 */
+    margin-bottom: 15px; /* 下の余白 */
+    border: 1px solid #ccc; /* 枠線 */
+    border-radius: 4px; /* 角を丸くする */
+}
+
+.reservationSubmitButton {
+    background-color: #007bff; /* ボタンの背景色 */
+    color: white; /* ボタンの文字色 */
+    border: none; /* 枠線をなしに */
+    cursor: pointer; /* カーソルをポインタに */
+}

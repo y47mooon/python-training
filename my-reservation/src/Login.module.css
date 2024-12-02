@@ -1,0 +1,52 @@
+.loginContainer {
+    display: flex;
+    justify-content: center; /* 水平方向に中央揃え */
+    align-items: center; /* 垂直方向に中央揃え */
+    height: 100vh; /* ビューポートの高さを100%に設定 */
+    background-color: #e0f7fa; /* 薄い水色の背景 */
+}
+
+.loginBox {
+    display: flex; /* フレックスボックスを使用 */
+    flex-direction: column; /* 縦方向に配置 */
+    align-items: center; /* 中央揃え */
+    background-color: white; /* ボックスの背景色 */
+    padding: 20px; /* 内側の余白 */
+    border-radius: 8px; /* 角を丸くする */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 影をつける */
+    width: 400px; /* ボックスの幅 */
+}
+
+h2 {
+    text-align: center; /* タイトルを中央揃え */
+}
+
+label {
+    display: block; /* ラベルをブロック要素に */
+    margin-bottom: 5px; /* 下の余白 */
+}
+
+.inputField {
+    width: 100%; /* 入力フィールドの幅を100%に */
+    padding: 10px; /* 内側の余白 */
+    margin-bottom: 15px; /* 下の余白 */
+    border: 1px solid #ccc; /* 枠線 */
+    border-radius: 4px; /* 角を丸くする */
+    height: 10px;
+}
+
+.loginButton {
+    width: 115%; /* ボタンの幅を100%に */
+    padding: 15px; /* 内側の余白 */
+    background-color: #007bff; /* ボタンの背景色 */
+    color: white; /* ボタンの文字色 */
+    border: none; /* 枠線をなしに */
+    border-radius: 4px; /* 角を丸くする */
+    cursor: pointer; /* カーソルをポインタに */
+    margin-top: 15px;
+}
+
+.loginButton:hover {
+    background-color: #0056b3; /* ホバー時の背景色 */
+    transform: scale(1.05); /* ホバー時に少し拡大 */
+}

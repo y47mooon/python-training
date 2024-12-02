@@ -8,42 +8,61 @@
     padding: 8px; /* セルの内側の余白 */
     text-align: center; /* セル内のテキストを中央揃え */
 }
-
 .reservation-table th {
-    background-color: #f2f2f2; /* ヘッダーの背景色 */
+    /*background-color: #f2f2f2; /* ヘッダーの背景色 */
+   
 }
 
 .reservation-table td:hover {
-    background-color: #f0f0f0; /* セルにマウスオーバーしたときの背景色 */
+    /*background-color: #f0f0f0; /* セルにマウスオーバーしたときの背景色 */
 }
 .sunday {
     color: blue; /* 日曜日の文字色を青に設定 */
-}
-
-.saturday {
-    color: red; /* 土曜日の文字色を赤に設定 */
-}
-.sunday {
     background-color: rgba(173, 216, 230, 0.5); /* 日曜日の背景色を薄い青に設定 */
 }
 
 .saturday {
-    background-color: rgba(255, 182, 193, 0.5); /* 土曜日の背景色を薄い赤に設定 */
+    color: red; /* 土曜日の文字色を赤に設定 */
+    background-color:rgba(255, 182, 193, 0.5);
 }
+
 .available {
     color: red; /* ◎の文字色を赤に設定 */
+    cursor: pointer;
 }
 .reserved {
-    background-color: rgba(211, 211, 211, 0.5); /* ×の背景色を薄いグレーに設定 */
     color: black; /* ×の文字色を黒に設定（必要に応じて変更） */
 }
 .time-cell {
-    background-color: rgba(211, 211, 211, 0.5); /* 時間のセルの背景色を薄いグレーに設定 */
-}
-.date-cell {
-    background-color: white; /* 日付のセルの背景色を白に設定 */
+    /*background-color: rgba(211, 211, 211, 0.5); /* 時間のセルの背景色を薄いグレーに設定 */
 }
 
-.day-cell {
-    background-color: white; /* 曜日のセルの背景色を白に設定 */
+.navigation {
+    display: flex;
+    justify-content: space-between; /* 左右にボタンを配置 */
+}
+.prev-week-button {
+    /* 前の週ボタンのスタイル */
+}
+.next-week-button {
+    /* 次の週ボタンのスタイル */
+}
+
+.light-gray {
+    background-color: rgba(211, 211, 211, 0.5); /* 薄いグレーの背景色 */
+}
+
+.month-cell {
+    font-size: 15px; /* フォントサイズを大きく設定 */
+    text-align: center; /* 中央揃え */
+    background-color: #8c99b8; /* 背景色を設定 */
+    padding: 10px; /* 内側の余白を設定 */
+}
+
+.saturday-date {
+    background-color: rgba(255, 182, 193, 0.5); /* 薄い赤の背景色 */
+}
+
+.sunday-date {
+    background-color: rgba(173, 216, 230, 0.5); /* 薄い青の背景色 */
 }
