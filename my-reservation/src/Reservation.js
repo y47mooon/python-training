@@ -1,16 +1,31 @@
 // src/Reservation.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './ReservationTable.css';// CSSファイルをインポート
+import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
 
 const ReservationTable = () => {
     const navigate = useNavigate();
     const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 現在の週のオフセットを管理
+    const [reservations, setReservations] = useState(Array.from({ length: 14 }, () => Array(24).fill(false))); // すべての枠を空に初期化
 
-    const handleCellClick = (reservation) => {
-        if (!reservation) {
-            navigate('/reservation-form'); // 予約が存在しない場合は予約フォームに遷移
+    // 9:00と9:30の枠を予約済みに設定
+    const setInitialReservations = () => {
+        const newReservations = [...reservations];
+        newReservations.forEach((day, index) => {
+            day[0] = true; // 9:00
+            day[1] = true; // 9:30
+        });
+        setReservations(newReservations);
+    };
+
+    useEffect(() => {
+        setInitialReservations();
+    }, []);
+
+    const handleCellClick = (timeIndex, dateIndex) => {
+        if (!reservations[dateIndex][timeIndex]) {
+            navigate('/reservation-form', { state: { timeIndex, dateIndex } }); // 予約フォームに遷移
         } else {
             navigate('/reservation-message'); // 予約が存在する場合は予約メッセージに遷移
         }
@@ -42,12 +57,6 @@ const ReservationTable = () => {
         }
     }
 
-    // 予約状況のサンプルデータ（ここではランダムに設定）
-    const reservations = Array.from({ length: 14 }, () => 
-        Array.from({ length: 24 }, () => Math.random() < 0.5)
-    );
-
-    
      const handleScrollToPreviousWeek = () => {
         setCurrentWeekOffset(prev => prev - 1); // 週のオフセットを減少
     };
@@ -94,7 +103,7 @@ const ReservationTable = () => {
                         <tr key={timeIndex}>
                             <td className="time-cell">{time}</td>
                             {reservations.map((reservation, dateIndex) => (
-                                <td key={dateIndex} className="time-cell" onClick={() => handleCellClick(reservation[timeIndex])}>
+                                <td key={dateIndex} className="time-cell" onClick={() => handleCellClick(timeIndex, dateIndex)}>
                                     {reservation[timeIndex] ? <span className="reserved">×</span> : <span className="available">◎</span>}
                                 </td>
                             ))}

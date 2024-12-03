@@ -16,12 +16,13 @@
 }
 
 .reservationSelectField {
-    width: 113%; /* ドロップダウンの幅を100%に */
-    padding: 50px; /* 内側の余白を増やす（縦幅を広げる） */
+    width: 110%; /* ドロップダウンの幅を100%に */
+    padding: 10px; /* 内側の余白を増やす（縦幅を広げる） */
     margin-bottom: 15px; /* 下の余白 */
     border: 1px solid #ccc; /* 枠線 */
     border-radius: 4px; /* 角を丸くする */
-    height: auto; /* 高さを自動に設定（必要に応じて調整） */
+    height: 35px; /* 高さを自動に設定（必要に応じて調整） */
+    font-size: 12px;
 }
 
 .reservationSubmitButton {
@@ -32,4 +33,61 @@
     border: none; /* 枠線をなしに */
     cursor: pointer; /* カーソルをポインタに */
     margin-top: 20px; /* 上部にスペースを追加 */
+}
+
+.staffSelection {
+    border: 1px solid #ccc; /* 枠線 */
+    background-color: white; /* 背景色 */
+    padding: 10px; /* 内側の余白 */
+    width: 100%; 
+}
+
+.radioGroup {
+    display: flex;
+    flex-direction: column; /* 縦に並べる */
+}
+
+.staffSelectionContainer {
+    border: 1px solid #ccc; /* 枠線 */
+    border-radius: 8px; /* 角を丸く */
+    background-color: white; /* 背景色を白に */
+    padding: 10px; /* 内側の余白 */
+    width: 100%; 
+}
+
+.staffOptions {
+    display: flex;
+    flex-direction: column; /* 縦に並べる */
+}
+
+.staffLabel {
+    margin-bottom: 8px; /* ラベルと枠の間に余白を追加 */
+}
+
+.requestLabel {
+    margin-top: 15px; /* 上の余白 */
+    font-weight: bold; /* 太字 */
+}
+
+.requestTextArea {
+    width: 100%; /* 幅を100%に */
+    height: 100px; /* 高さを指定 */
+    padding: 10px; /* 内側の余白 */
+    border: 1px solid #ccc; /* 枠線 */
+    border-radius: 4px; /* 角を丸くする */
+    font-size: 16px; /* フォントサイズを調整 */
+    margin-top: 5px; /* ラベルとの間に余白 */
+}
+.backButton {
+    background-color: #f0f0f0; /* 背景色 */
+    color: #333; /* 文字色 */
+    border: 1px solid #ccc; /* ボーダー */
+    border-radius: 5px; /* 角を丸く */
+    padding: 10px 15px; /* パディング */
+    cursor: pointer; /* カーソルをポインタに */
+    transition: background-color 0.3s; /* ホバー時のトランジション */
+}
+
+.backButton:hover {
+    background-color: #e0e0e0; /* ホバー時の背景色 */
 }

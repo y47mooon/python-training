@@ -1,0 +1,76 @@
+.summaryContainer {
+    display: flex; /* フレックスボックスを使用 */
+    flex-direction: column; /* 縦方向に配置 */
+    align-items: center; /* 水平方向に中央揃え */
+    justify-content: center; /* 垂直方向に中央揃え */
+    height: 100vh; /* ビューポートの高さを100%に設定 */
+    background: linear-gradient(to bottom, #EEFFFF,#88FFFF);
+}
+
+.summaryItem {
+    margin-bottom: 15px; /* 各項目の下に余白を追加 */
+    font-size: 18px; /* フォントサイズを設定 */
+    padding: 8px; /* 内側の余白を追加 */
+    width: 100%; /* 幅を100%に設定 */
+    text-align: left;
+    
+}
+
+.confirmButton {
+    padding: 10px 20px; /* ボタンの内側の余白 */
+    background-color: #007bff; /* ボタンの背景色 */
+    color: white; /* ボタンの文字色 */
+    border: none; /* 枠線をなしに */
+    border-radius: 4px; /* 角を丸くする */
+    cursor: pointer; /* カーソルをポインタに */
+}
+
+.backButton {
+    background-color: #fffefe; /* 背景色 */
+    color: #333; /* 文字色 */
+    border: 1px solid #ccc; /* ボーダー */
+    border-radius: 5px; /* 角を丸く */
+    padding: 10px 15px; /* パディング */
+    cursor: pointer; /* カーソルをポインタに */
+    transition: background-color 0.3s; /* ホバー時のトランジション */
+}
+
+.backButton:hover {
+    background-color: #dadafd; /* ホバー時の背景色 */
+}
+
+.storeInfo {
+    border: 1px solid #ccc; /* 枠線の色とスタイル */
+    border-radius: 10px; /* 角を丸くする */
+    background-color: rgb(146, 215, 255); /* 薄い水色の背景 */
+    padding: 30px; /* 内側の余白 */
+    margin: 10px; /* 上下の余白を狭める */
+    width: 160%; /* 幅を指定 */
+}
+
+.container {
+    display: flex; /* フレックスボックスを使用 */
+    justify-content: space-between; /* 左右にスペースを分配 */
+    align-items: flex-start; /* 上揃え */
+    text-align: center;
+    width: 80%; /* 幅を100%に設定 */
+}
+
+.summaryDetails {
+    border: 1px solid #ccc; /* 枠線の色とスタイル */
+    border-radius: 10px; /* 角を丸くする */
+    background-color: rgb(255, 255, 255); /* 白色の背景 */
+    padding: 30px; /* 内側の余白 */
+    margin: 10px; /* 上下の余白を狭める */
+    width: 150%; /* 幅を指定 */
+    height: 270px;
+}
+
+.summaryTitle {
+    text-align: left; /* 左揃え */
+    font-size: 24px; /* フォントサイズを設定 */
+    margin-bottom: 20px; /* 下の余白を追加 */
+    margin-bottom: 15px; /* 各項目の下に余白を追加 */
+    padding: 10px; /* 内側の余白を追加 */
+    width: 100%;
+}
