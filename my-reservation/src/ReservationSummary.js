@@ -23,7 +23,7 @@ const ReservationSummary = () => {
 
     return (
         <div className={styles.summaryContainer}>
-            <h3 className={styles.summaryTitle}>ご予約内容</h3>
+            <h3 className={`${styles.summaryTitle}`}>ご予約内容</h3>
             <div className={styles.container}>
                 <div className={styles.storeInfo}>
                     <h3>店舗名: 〇〇</h3>

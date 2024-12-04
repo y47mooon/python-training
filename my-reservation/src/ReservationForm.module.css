@@ -91,3 +91,10 @@
 .backButton:hover {
     background-color: #e0e0e0; /* ホバー時の背景色 */
 }
+.customReservationForm {
+    background-color: #e0f7fa; /* ベースの薄い水色 */
+    background-image: radial-gradient(circle, #b3e5fc 1px, transparent 1px);
+    background-size: 10px 10px; /* 水玉のサイズを調整 */
+    padding: 20px; /* フォームの内側の余白 */
+    border-radius: 5px; /* 角を少し丸める */
+}

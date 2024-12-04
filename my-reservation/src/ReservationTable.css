@@ -1,20 +1,13 @@
 .reservation-table {
     width: 100%;
     border-collapse: collapse; /* 枠線を重ねて表示 */
+    margin: 0auto;
 }
 
 .reservation-table th, .reservation-table td {
     border: 1px solid #ccc; /* 枠線の色とスタイル */
     padding: 8px; /* セルの内側の余白 */
     text-align: center; /* セル内のテキストを中央揃え */
-}
-.reservation-table th {
-    /*background-color: #f2f2f2; /* ヘッダーの背景色 */
-   
-}
-
-.reservation-table td:hover {
-    /*background-color: #f0f0f0; /* セルにマウスオーバーしたときの背景色 */
 }
 .sunday {
     color: blue; /* 日曜日の文字色を青に設定 */
@@ -33,21 +26,10 @@
 .reserved {
     color: black; /* ×の文字色を黒に設定（必要に応じて変更） */
 }
-.time-cell {
-    /*background-color: rgba(211, 211, 211, 0.5); /* 時間のセルの背景色を薄いグレーに設定 */
-}
-
 .navigation {
     display: flex;
     justify-content: space-between; /* 左右にボタンを配置 */
 }
-.prev-week-button {
-    /* 前の週ボタンのスタイル */
-}
-.next-week-button {
-    /* 次の週ボタンのスタイル */
-}
-
 .light-gray {
     background-color: rgba(211, 211, 211, 0.5); /* 薄いグレーの背景色 */
 }
@@ -65,4 +47,98 @@
 
 .sunday-date {
     background-color: rgba(173, 216, 230, 0.5); /* 薄い青の背景色 */
+}
+
+.reserved-background {
+    background-color: #BBBBBB; /* 9:00と9:30の背景色 */
+}
+
+.time-header {
+    position: relative; /* 相対位置を設定 */
+    text-align: center; /* 中央揃え */
+    font-size: 28px; /* フォントサイズを大きく設定 */
+    margin: 20px 0; /* 上下の余白を設定 */
+    padding: 10px; /* 内側の余白を追加 */
+    color: #475b8f; /* 文字色を白に設定 */
+    background-color: #E6E6FA; /* 背景色を青に設定 */
+    border-radius: 8px; /* 角を丸くする */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 影を追加 */
+    font-family: 'Meiryo UI', sans-serif; /* フォントを指定 */
+}
+
+.time-header::before,
+.time-header::after {
+    content: ""; /* 擬似要素の内容を空に設定 */
+    position: absolute; /* 絶対位置を設定 */
+    top: 50%; /* 垂直中央に配置 */
+    width: 100px; /* 線の幅を設定 */
+    height: 2px; /* 線の高さを設定 */
+    background: linear-gradient(to right, transparent, #fff, transparent); /* グラデーションの設定 */
+}
+
+.time-header::before {
+    left: -120px; /* 左側の位置を調整 */
+}
+
+.time-header::after {
+    right: -120px; /* 右側の位置を調整 */
+}
+
+.reservation-prompt {
+    text-align: left; /* 左揃え */
+    font-size: 15px; /* フォントサイズを設定（必要に応じて変更） */
+    margin: 10px 0; /* 上下の余白を設定 */
+    color: #555555; /* 文字色を設定 */
+    font-family: 'Meiryo UI', sans-serif; /* フォントを指定 */
+}
+
+.light-gray-background {
+    background-color: #BBBBBB; /* 薄い灰色の背景 */
+}
+
+.left-right-background {
+    background-color: #EEEEEE; /* 左右の時間セルの背景色 */
+}
+
+.status-indicator {
+    display: flex; /* フレックスボックスを使用して横並びにする */
+    justify-content: space-between; /* 中央揃え */
+    margin-top: 20px; /* 上の余白を設定 */
+    margin-bottom: 20px; /* 下の余白を追加してスペースを確保 */
+}
+
+.available-indicator,
+.reserved-indicator,
+.closed-indicator {
+    margin: 0 15px; /* 各要素の左右の余白を設定 */
+    font-size: 16px; /* フォントサイズを設定（必要に応じて変更） */
+}
+
+.available-indicator {
+    color: green; /* 予約可能時間の色 */
+}
+
+.reserved-indicator {
+    color: red; /* 予約済みの色 */
+}
+
+.closed-indicator {
+    color: gray; /* 営業時間外の色 */
+}
+
+.back-button {
+    background-color: #68abf3; /* ボタンの背景色 */
+    color: white; /* 文字色 */
+    border: none; /* 枠線をなしに */
+    border-radius: 5px; /* 角を丸くする */
+    padding: 15px 40px; /* 内側の余白 */
+    cursor: pointer; /* カーソルをポインターに */
+    transition: background-color 0.3s; /* ホバー時のトランジション */
+    font-size: 16px; /* フォントサイズ */
+    margin-top: 20px;
+    margin-bottom: 60px;
+}
+
+.back-button:hover {
+    background-color: #628bb6; /* ホバー時の背景色 */
 }

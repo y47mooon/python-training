@@ -32,20 +32,20 @@ const ReservationForm = () => {
             return;
         }
         setError('');
-        navigate('/reservation-summary', { state: { name, phone, email, service, staff, request } });
+        navigate('/reservation-summary', { state: { name, phone, email, service, staff, request } }); //データを渡す
     };
 
     const validateEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
+        return re.test(email); //reにマッチしたらtrueを返す
     };
 
     const handleBack = () => {
-        navigate('/reservation');
+        navigate('/reservation'); //予約画面に戻る
     };
 
     return (
-        <div className={styles.reservationFormContainer}>
+        <div className={`${styles.reservationFormContainer} ${styles.customReservationForm}`}>
             <button className={styles.backButton} onClick={handleBack} style={{ position: 'absolute', top: '10px', right: '10px' }}>
                 戻る
             </button>
@@ -107,7 +107,7 @@ const ReservationForm = () => {
                                 type="radio" 
                                 value="佐藤" 
                                 name="staff" 
-                                onChange={(e) => setStaff(e.target.value)} 
+                                onChange={(e) => setStaff(e.target.value)} //ユーザーが選択した値をstaffに格納
                             />
                             佐藤
                         </label>
@@ -145,12 +145,17 @@ const ReservationForm = () => {
                     <textarea 
                         className={styles.requestTextArea} 
                         value={request} 
-                        onChange={(e) => setRequest(e.target.value)} 
+                        onChange={(e) => {
+                            if(e.target.value.length <= 50){
+                                setRequest(e.target.value); //要望をrequestに格納
+                            }
+                        }} 
                         rows="4" 
                         placeholder="店内での過ごし方や髪型のイメージなどを記入してください。" // プレースホルダーを追加
                     />
+                    {request.length > 50 && <p style={{ color: 'red'}}>要望は50字以内で入力してください。</p>}
                 </div>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {error && <p style={{ color: 'red' }}>{error}</p>} {/*エラーメッセージを表示*/}
                 <button type="submit" className={styles.reservationSubmitButton}>予約する</button>
             </form>
         </div>
