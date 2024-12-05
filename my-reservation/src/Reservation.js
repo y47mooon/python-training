@@ -94,7 +94,7 @@ const ReservationTable = () => {
                 <thead>
                 <tr>
                    <th colSpan={16} className="month-cell">{new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth())
-                   .toLocaleString('default', { month: 'long' })}の予約状</th> {/* ここを追加 */}
+                   .toLocaleString('default', { month: 'long' })}の予約状況</th> {/* ここを追加 */}
                 </tr>
                     <tr>
                         <th className="day-cell" rowSpan={2}>時間</th>

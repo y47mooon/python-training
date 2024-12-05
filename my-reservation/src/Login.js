@@ -3,27 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = (e) => {
         e.preventDefault();
-        navigate('/reservation');
+        setError('');
+
+        //メールアドレスの形式をチェック
+        if(!validateEmail(email)){
+            setError('メールアドレスの形式で入力してください');
+            return;
+        }
+
+        navigate('/reservation', { state: { loggedInEmail: email } });
     };
+
+    const validateEmail = (email) =>{
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
 
     return (
         <div className={styles.loginContainer}>
             <div className={styles.loginBox}>
                 <h2>ログイン</h2>
+                {error && <p className={styles.error}>{error}</p>}{/*エラーメッセージを表示*/}
                 <form onSubmit={handleLogin}>
                     <div>
-                        <label>ユーザー名</label>
+                        <label>メールアドレス</label>
                         <input 
-                            type="text" 
+                            type="email" 
                             className={styles.inputField}
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
                             required 
                         />
                     </div>

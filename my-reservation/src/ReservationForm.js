@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './ReservationForm.module.css';
 
@@ -13,10 +13,16 @@ const ReservationForm = () => {
     const [request, setRequest] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { timeIndex, dateIndex } = location.state || {};// クリックした時間と日付のインデックスを取得.デフォの値設定
+    const { loggedInEmail = '' } = location.state || {}; // stateがundefinedの場合に備える
+
+    // ログイン時のメールアドレスを初期値として設定
+    useEffect(() => {
+        setEmail(loggedInEmail);
+    }, [loggedInEmail]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setError('');
         setEmailError('');
 
         if (name.length < 1 || name.length > 20) {
@@ -27,17 +33,11 @@ const ReservationForm = () => {
             setError('電話番号は10桁以上15桁以内で入力してください。');
             return;
         }
-        if (!validateEmail(email)) {
-            setEmailError('正しいE-mailアドレスを入力してください。');
-            return;
+        if (email.trim() === loggedInEmail.trim()) {
+            navigate('/reservation-summary', { state: { name, phone, email, service, staff, request } });
+        } else {
+            setEmailError('登録したメールアドレスを入力してください');
         }
-        setError('');
-        navigate('/reservation-summary', { state: { name, phone, email, service, staff, request } }); //データを渡す
-    };
-
-    const validateEmail = (email) => {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email); //reにマッチしたらtrueを返す
     };
 
     const handleBack = () => {
@@ -64,7 +64,7 @@ const ReservationForm = () => {
                 <div>
                     <label>電話番号</label>
                     <input 
-                        type="tel" 
+                        type="tell" 
                         className={styles.reservationInputField}
                         value={phone} 
                         onChange={(e) => setPhone(e.target.value)} 
@@ -72,9 +72,10 @@ const ReservationForm = () => {
                     />
                 </div>
                 <div>
-                    <label>E-mail</label>
+                    <label htmlFor="email">E-mail</label>
                     <input 
                         type="email" 
+                        id="email"
                         className={styles.reservationInputField}
                         value={email} 
                         onChange={(e) => setEmail(e.target.value)} 
@@ -147,7 +148,7 @@ const ReservationForm = () => {
                         value={request} 
                         onChange={(e) => {
                             if(e.target.value.length <= 50){
-                                setRequest(e.target.value); //要望をrequestに格納
+                                setRequest(e.target.value); //要望をrequestに納
                             }
                         }} 
                         rows="4" 

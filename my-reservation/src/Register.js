@@ -1,20 +1,47 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './Register.module.css'; // 新しいCSSモジュールをインポート
+import { registerUser } from './firebase';
+import Dialog from './Dialog'; // ダイアログコンポーネントをインポート
+import styles from './Register.module.css';
 
 const Register = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showDialog, setShowDialog] = useState(false); // ダイアログの表示状態
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!username || !password) {
-            setError('ユーザー名とパスワードを入力してください。');
+        setError('');
+
+        if (!email || !password) {
+            setError('メールアドレスとパスワードを入力してください。');
             return;
         }
-        console.log('会員登録中...', { username, password });
+
+        if (!validateEmail(email)) {
+            setError('メールアドレスの形式が正しくありません。');
+            return;
+        }
+
+        try {
+            await registerUser(email, password);
+            setShowDialog(true);
+        } catch (error) {
+            console.error("登録エラーの詳細:", error); // エラーの詳細を表示
+            setError('登録に失敗しました: ' + error.message);
+        }
+    };
+
+    const handleCloseDialog = () => {
+        setShowDialog(false); // ダイアログを閉じる
+        navigate('/'); // ログインページに遷移
     };
 
     return (
@@ -24,13 +51,13 @@ const Register = () => {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <label htmlFor="username">ユーザー名</label>
+                        <label htmlFor="email">メールアドレス</label>
                         <input 
-                            type="text" 
-                            id="username" 
-                            className={styles.inputField} // 新しいスタイルを適用
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
+                            type="email" 
+                            id="email" 
+                            className={styles.inputField} 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
                             required 
                         />
                     </div>
@@ -39,18 +66,19 @@ const Register = () => {
                         <input 
                             type="password" 
                             id="password" 
-                            className={styles.inputField} // 新しいスタイルを適用
+                            className={styles.inputField} 
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)} 
                             required 
                         />
                     </div>
-                    <button type="submit" className={styles.registerButton}>登録</button> {/* 新しいボタンスタイルを適用 */}
+                    <button type="submit" className={styles.registerButton}>登録</button>
                 </form>
                 <p>
                     既にアカウントをお持ちですか？ <span style={{ cursor: 'pointer', color: 'blue' }} onClick={() => navigate('/')}>ログインページはこちら</span>
                 </p>
             </div>
+            {showDialog && <Dialog message="登録が完了しました。" onClose={handleCloseDialog} />} {/* ダイアログを表示 */}
         </div>
     );
 };

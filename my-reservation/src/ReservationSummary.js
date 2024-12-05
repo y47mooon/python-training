@@ -40,6 +40,7 @@ const ReservationSummary = () => {
                 <div className={styles.summaryDetails}>
                     <div className={styles.summaryItem}>氏名: {name}</div>
                     <div className={styles.summaryItem}>電話番号: {phone}</div>
+                    <div className={styles.summaryItem}>E-mail: {email}</div>
                     <div className={styles.summaryItem}>サービス: {service}</div>
                     <div className={styles.summaryItem}>
                         <span className={styles.label}>担当者:</span>
@@ -67,7 +68,7 @@ const ReservationSummary = () => {
     );
 };
 
-// ダイアログのスタイル
+// ダ���アログのスタイル
 const dialogStyle = {
     position: 'fixed',
     top: '50%',
