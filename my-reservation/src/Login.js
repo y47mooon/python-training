@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
+import { login } from './firebase';
+import { useUserContext } from './UserContext';
 
 const Login = () => {
+    const { setUserInfo } = useUserContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setError('');
-
-        //メールアドレスの形式をチェック
-        if(!validateEmail(email)){
-            setError('メールアドレスの形式で入力してください');
-            return;
+        if (validateEmail(email)) {
+            try {
+                await login(email, password);
+                setUserInfo(prev => ({ ...prev, loggedInEmail: email }));
+                navigate('/reservation', { state: { loggedInEmail: email } });
+            } catch (err) {
+                setError('ログインに失敗しました。');
+            }
+        } else {
+            setError('メールアドレスの形式が正しくありません。');
         }
-
-        navigate('/reservation', { state: { loggedInEmail: email } });
     };
 
     const validateEmail = (email) =>{
@@ -37,7 +42,7 @@ const Login = () => {
                         <input 
                             type="email" 
                             className={styles.inputField}
-                            value={email} 
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)} 
                             required 
                         />

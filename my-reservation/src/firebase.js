@@ -19,9 +19,10 @@ export const db = getFirestore(app);
 export const login = async (email, password) => {
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // ログイン成功
+        console.log("ログイン成功");
     } catch (error) {
         console.error("ログインエラー:", error);
+        throw error; // エラーを呼び出し元に伝える
     }
 };
 

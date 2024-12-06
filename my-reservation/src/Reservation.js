@@ -1,11 +1,13 @@
 // src/Reservation.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
 
 const ReservationTable = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { loggedInEmail } = location.state || {}; // メールアドレスを取得
     const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 現在の週のオフセットを管理
     const [reservations, setReservations] = useState(Array.from({ length: 14 }, () => Array(24).fill(false))); // すべての枠を空に初期化
 
@@ -28,7 +30,7 @@ const ReservationTable = () => {
         if (time === "18:00" || time === "18:30") {
             alert("営業時間外です。◎が予約可能時間です。"); // アラートを表示
         } else if (!reservations[dateIndex][timeIndex]) {
-            navigate('/reservation-form', { state: { timeIndex, dateIndex } }); // 予約フォームに遷移
+            navigate('/reservation-form', { state: { timeIndex, dateIndex, loggedInEmail } }); // メールアドレスを渡す
         } else {
             handleClose();
         }

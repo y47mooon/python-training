@@ -1,30 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './ReservationForm.module.css';
+import { saveReservation } from './reservationService'; 
+import { useUserContext } from './UserContext';
 
 const ReservationForm = () => {
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
-    const [service, setService] = useState('');
+    const location = useLocation();
+    const { loggedInEmail, service: initialService, staff: initialStaff, request: initialRequest } = location.state || {};
+    const { userInfo, setUserInfo } = useUserContext();
+    const { name: initialName, phone: initialPhone, email: initialEmail, staff: userStaff } = userInfo;
+
+    const [name, setName] = useState(initialName || '');
+    const [phone, setPhone] = useState(initialPhone || '');
+    const [email, setEmail] = useState(loggedInEmail || initialEmail || '');
+    const [service, setService] = useState(initialService || '');
     const [error, setError] = useState('');
     const [emailError, setEmailError] = useState('');
-    const [staff, setStaff] = useState('');
-    const [request, setRequest] = useState('');
+    const [staff, setStaff] = useState(initialStaff || userStaff || '');
+    const [request, setRequest] = useState(initialRequest || '');
     const navigate = useNavigate();
-    const location = useLocation();
-    const { loggedInEmail = '' } = location.state || {}; // stateがundefinedの場合に備える
-
-    // ログイン時のメールアドレスを初期値として設定
-    useEffect(() => {
-        setEmail(loggedInEmail);
-    }, [loggedInEmail]);
-
-    const handleSubmit = (e) => {
+    
+    const handleSubmit =async(e) =>{
         e.preventDefault();
-        setError('');
-        setEmailError('');
+        console.log('ログイン時のメールアドレス:', loggedInEmail);
+        console.log('入力されたメールアドレス:', email);
 
+        if(!loggedInEmail){
+            alert('メールアドレスが取得できませんでした');
+            return;
+        }
         if (name.length < 1 || name.length > 20) {
             setError('氏名は1文字以上20文字以内で入力してください。');
             return;
@@ -34,14 +38,18 @@ const ReservationForm = () => {
             return;
         }
         if (email.trim() === loggedInEmail.trim()) {
-            navigate('/reservation-summary', { state: { name, phone, email, service, staff, request } });
+            const reservationData = { name, phone, email, service, staff, request };
+            console.log('予約データ:', reservationData);
+            await saveReservation(reservationData);
+            setUserInfo(prev => ({ ...prev, name, phone, service, staff, request }));
+            navigate('/reservation-summary', { state: reservationData });
         } else {
-            setEmailError('登録したメールアドレスを入力してください');
+            setEmailError('登録したメールアドレ��を入力してください');
         }
     };
 
     const handleBack = () => {
-        navigate('/reservation'); //予約画面に戻る
+        navigate('/reservation', { state: { loggedInEmail } });
     };
 
     return (
@@ -81,7 +89,7 @@ const ReservationForm = () => {
                         onChange={(e) => setEmail(e.target.value)} 
                         required 
                     />
-                    {emailError && <p style={{ color: 'red' }}>{emailError}</p>}
+                    {emailError && <p className="error">{emailError}</p>}
                 </div>
                 <div>
                     <label>サービス</label>
