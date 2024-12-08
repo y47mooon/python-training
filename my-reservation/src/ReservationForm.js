@@ -1,34 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import styles from './ReservationForm.module.css';
-import { saveReservation } from './reservationService'; 
 import { useUserContext } from './UserContext';
+import styles from './ReservationForm.module.css';
+import { saveReservation } from './reservationService';
 
 const ReservationForm = () => {
     const location = useLocation();
-    const { loggedInEmail, service: initialService, staff: initialStaff, request: initialRequest } = location.state || {};
-    const { userInfo, setUserInfo } = useUserContext();
-    const { name: initialName, phone: initialPhone, email: initialEmail, staff: userStaff } = userInfo;
+    const { loggedInEmail } = location.state || {};
+    const { userInfo } = useUserContext();
+    const { name: initialName, phone: initialPhone, service: initialService, staff: initialStaff, request: initialRequest } = userInfo;
 
-    const [name, setName] = useState(initialName || '');
-    const [phone, setPhone] = useState(initialPhone || '');
-    const [email, setEmail] = useState(loggedInEmail || initialEmail || '');
-    const [service, setService] = useState(initialService || '');
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [service, setService] = useState('');
     const [error, setError] = useState('');
     const [emailError, setEmailError] = useState('');
-    const [staff, setStaff] = useState(initialStaff || userStaff || '');
-    const [request, setRequest] = useState(initialRequest || '');
+    const [staff, setStaff] = useState('');
+    const [request, setRequest] = useState('');
     const navigate = useNavigate();
-    
-    const handleSubmit =async(e) =>{
-        e.preventDefault();
-        console.log('ログイン時のメールアドレス:', loggedInEmail);
-        console.log('入力されたメールアドレス:', email);
 
-        if(!loggedInEmail){
+    useEffect(() => {
+        // 予約確認画面から戻った際に入力した値を設定
+        if (location.state) {
+            const { name, phone, email, service, staff, request } = location.state;
+            setName(name || '');
+            setPhone(phone || '');
+            setEmail(email || loggedInEmail);
+            setService(service || '');
+            setStaff(staff || '');
+            setRequest(request || '');
+        }
+    }, [location.state, loggedInEmail]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        // ログインメールアドレスが取得できているか確認
+        if (!loggedInEmail) {
             alert('メールアドレスが取得できませんでした');
             return;
         }
+        
+        // 入力チェック
         if (name.length < 1 || name.length > 20) {
             setError('氏名は1文字以上20文字以内で入力してください。');
             return;
@@ -37,19 +51,25 @@ const ReservationForm = () => {
             setError('電話番号は10桁以上15桁以内で入力してください。');
             return;
         }
+        
+        // メールアドレスが空でないことを確認
+        if (email.trim() === '') {
+            setEmailError('メールアドレスを入力してください');
+            return;
+        }
+
+        // メールアドレスが一致するか確認
         if (email.trim() === loggedInEmail.trim()) {
             const reservationData = { name, phone, email, service, staff, request };
-            console.log('予約データ:', reservationData);
             await saveReservation(reservationData);
-            setUserInfo(prev => ({ ...prev, name, phone, service, staff, request }));
             navigate('/reservation-summary', { state: reservationData });
         } else {
-            setEmailError('登録したメールアドレ��を入力してください');
+            setEmailError('登録したメールアドレスを入力してください');
         }
     };
 
     const handleBack = () => {
-        navigate('/reservation', { state: { loggedInEmail } });
+        navigate('/reservation', { state: { loggedInEmail, name, phone, email, service, staff, request } });
     };
 
     return (
@@ -116,7 +136,8 @@ const ReservationForm = () => {
                                 type="radio" 
                                 value="佐藤" 
                                 name="staff" 
-                                onChange={(e) => setStaff(e.target.value)} //ユーザーが選択した値をstaffに格納
+                                checked={staff === '佐藤'}
+                                onChange={(e) => setStaff(e.target.value)} 
                             />
                             佐藤
                         </label>
@@ -125,6 +146,7 @@ const ReservationForm = () => {
                                 type="radio" 
                                 value="田中" 
                                 name="staff" 
+                                checked={staff === '田中'}
                                 onChange={(e) => setStaff(e.target.value)} 
                             />
                             田中
@@ -134,6 +156,7 @@ const ReservationForm = () => {
                                 type="radio" 
                                 value="鈴木" 
                                 name="staff" 
+                                checked={staff === '鈴木'}
                                 onChange={(e) => setStaff(e.target.value)} 
                             />
                             鈴木
@@ -143,6 +166,7 @@ const ReservationForm = () => {
                                 type="radio" 
                                 value="担当者なし" 
                                 name="staff" 
+                                checked={staff === '担当者なし'}
                                 onChange={(e) => setStaff(e.target.value)} 
                             />
                             担当者なし
@@ -155,16 +179,16 @@ const ReservationForm = () => {
                         className={styles.requestTextArea} 
                         value={request} 
                         onChange={(e) => {
-                            if(e.target.value.length <= 50){
-                                setRequest(e.target.value); //要望をrequestに納
+                            if (e.target.value.length <= 50) {
+                                setRequest(e.target.value);
                             }
                         }} 
                         rows="4" 
-                        placeholder="店内での過ごし方や髪型のイメージなどを記入してください。" // プレースホルダーを追加
+                        placeholder="店内での過ごし方や髪型のイメージなどを記入してください。"
                     />
                     {request.length > 50 && <p style={{ color: 'red'}}>要望は50字以内で入力してください。</p>}
                 </div>
-                {error && <p style={{ color: 'red' }}>{error}</p>} {/*エラーメッセージを表示*/}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit" className={styles.reservationSubmitButton}>予約する</button>
             </form>
         </div>
