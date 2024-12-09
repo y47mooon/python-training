@@ -3,13 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
+import { updateReservationStatus } from './updateReservationStatus';
+import { saveReservation } from './reservationService';
 
 const ReservationTable = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { loggedInEmail } = location.state || {}; // メールアドレスを取得
+    const { email: loggedInEmail } = location.state || {}; // location.stateからloggedInEmailを取得
     const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 現在の週のオフセットを管理
     const [reservations, setReservations] = useState(Array.from({ length: 14 }, () => Array(24).fill(false))); // すべての枠を空に初期化
+    const [showDialog, setShowDialog] = useState(false);
+    const [selectedDateTime, setSelectedDateTime] = useState(null); // 選択した日時を保持
+    const [selectedTime, setSelectedTime] = useState(null); // 選択した時間を保持
+
 
     // 9:00と9:30の枠を予約済みに設定
     const setInitialReservations = () => {
@@ -26,14 +32,37 @@ const ReservationTable = () => {
     }, []); //初期化
 
     const handleCellClick = (timeIndex, dateIndex) => {
-        const time = timeSlots[timeIndex]; // クリックされた時間を取得
+        const time = timeSlots[timeIndex];
+        const date = dates[dateIndex];
+        
         if (time === "18:00" || time === "18:30") {
-            alert("営業時間外です。◎が予約可能時間です。"); // アラートを表示
+            alert("営業時間外です。◎が予約可能時間です。");
         } else if (!reservations[dateIndex][timeIndex]) {
-            navigate('/reservation-form', { state: { timeIndex, dateIndex, loggedInEmail } }); // メールアドレスを渡す
+            // 日付、時間、曜日を取得
+            const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            const dayOfWeek = days[date.getDay()]; // 曜日を取得
+            const formattedDateTime = `${formattedDate} (${dayOfWeek}) ${time}~`; // フォーマット
+
+            setSelectedDateTime(formattedDateTime); // 選択した日時を設定
+            navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime} });
         } else {
-            handleClose();
+            handleConfirm(timeIndex, dateIndex);
         }
+    };
+
+    // 予約状況を更新する関数
+    const updateReservations = (timeIndex, dateIndex) => {
+        const newReservations = [...reservations];
+        newReservations[dateIndex][timeIndex] = true; // 予約済みに設定
+        setReservations(newReservations);//予約情報を更新
+    };
+
+    // 予約確定後に呼び出す関数
+    const handleConfirm = async (timeIndex, dateIndex,reservationData) => {
+        const reservationId = await saveReservation(reservationData); // 予約情報を保存し、IDを取得
+        await updateReservationStatus(reservationId); // ステータスを更新
+        updateReservations(timeIndex, dateIndex); // カレンダーを更新
+        setShowDialog(true);
     };
 
     const today = new Date(); // 今日の日付を取得
@@ -51,7 +80,7 @@ const ReservationTable = () => {
     // 現在の月を取得
     const month = today.toLocaleString('default', { month: 'long' }); // 月の名前を取得
 
-    // 曜日の配列を定義
+    // 日の配列を定義
     const days = ['日', '月', '火', '水', '木', '金', '土','日', '月', '火', '水', '木', '金', '土'];
 
     const timeSlots = [];
@@ -82,7 +111,7 @@ const ReservationTable = () => {
         alert("営業時間外です。◎が予約可能時間です。");
     }        
 
-    const paddingValue = '40px'; // スペースの値を変更可能にする
+    const paddingValue = '40px'; // スペースの値を変可能にする
     return (
         <div style={{ padding: `0 ${paddingValue}` }}> {/* 左右にスペースを追加 */}
             <h2 className="time-header">時間予約</h2>

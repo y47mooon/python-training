@@ -16,8 +16,8 @@ const Login = () => {
         if (validateEmail(email)) {
             try {
                 await login(email, password);
-                setUserInfo(prev => ({ ...prev, loggedInEmail: email }));
-                navigate('/reservation', { state: { loggedInEmail: email } });
+                setUserInfo(prev => ({ ...prev, email }));
+                navigate('/reservation', { state: {email } });
             } catch (err) {
                 setError('ログインに失敗しました。');
             }

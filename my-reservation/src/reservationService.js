@@ -7,6 +7,6 @@ export const saveReservation = async (reservationData) => {
         console.log("予約が保存されました", docRef.id);
         return docRef.id; // 予約IDを返す
     } catch (error) {
-        console.error("予約保存エラー:", error);
+        console.error("予約保存エラー:", error.message); // エラーメッセージを表示
     }
 };

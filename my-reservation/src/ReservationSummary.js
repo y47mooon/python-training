@@ -7,7 +7,7 @@ import { updateReservationStatus } from './updateReservationStatus';
 const ReservationSummary = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { name, phone, email, service, staff, request, loggedInEmail } = location.state || {};
+    const { selectedDateTime, name, phone, email, service, staff, request } = location.state || {};
     const [showDialog, setShowDialog] = useState(false);
 
     const handleConfirm = async () => {
@@ -19,14 +19,14 @@ const ReservationSummary = () => {
 
     const handleCloseDialog = () => {
         setShowDialog(false);
-        navigate('/reservation', { state: { loggedInEmail, name, phone, email, service, staff, request } });
+        navigate('/reservation', { state: { name, phone, email, service, staff, request } });
     };
 
     const handleBack = () => {
         navigate('/reservation-form', { 
             state: { 
-                loggedInEmail, 
-                name, 
+                selectedDateTime, 
+                name,
                 phone, 
                 email, 
                 service, 
@@ -52,6 +52,7 @@ const ReservationSummary = () => {
                     </p>
                 </div>
                 <div className={styles.summaryDetails}>
+                    <div className={styles.summaryItem}>予約日時: {selectedDateTime}</div>
                     <div className={styles.summaryItem}>氏名: {name}</div>
                     <div className={styles.summaryItem}>電話番号: {phone}</div>
                     <div className={styles.summaryItem}>E-mail: {email}</div>

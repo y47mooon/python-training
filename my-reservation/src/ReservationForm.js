@@ -6,10 +6,8 @@ import { saveReservation } from './reservationService';
 
 const ReservationForm = () => {
     const location = useLocation();
-    const { loggedInEmail } = location.state || {};
-    const { userInfo } = useUserContext();
-    const { name: initialName, phone: initialPhone, service: initialService, staff: initialStaff, request: initialRequest } = userInfo;
-
+    const { email: userEmail, selectedDateTime } = location.state || {};
+    
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
@@ -20,56 +18,55 @@ const ReservationForm = () => {
     const [request, setRequest] = useState('');
     const navigate = useNavigate();
 
+    const [dateTime, setDateTime] = useState(selectedDateTime || '');
+
     useEffect(() => {
         // 予約確認画面から戻った際に入力した値を設定
         if (location.state) {
             const { name, phone, email, service, staff, request } = location.state;
             setName(name || '');
             setPhone(phone || '');
-            setEmail(email || loggedInEmail);
+            setEmail(email || userEmail);
             setService(service || '');
             setStaff(staff || '');
             setRequest(request || '');
+            setDateTime(dateTime || '');
         }
-    }, [location.state, loggedInEmail]);
+    }, [location.state, userEmail,selectedDateTime]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // ログインメールアドレスが取得できているか確認
-        if (!loggedInEmail) {
-            alert('メールアドレスが取得できませんでした');
-            return;
-        }
-        
-        // 入力チェック
+
+        //氏名の入力チェック
         if (name.length < 1 || name.length > 20) {
             setError('氏名は1文字以上20文字以内で入力してください。');
             return;
         }
+
+        //電話番号の入力チェック
         if (phone.length < 10 || phone.length > 15) {
             setError('電話番号は10桁以上15桁以内で入力してください。');
             return;
         }
-        
-        // メールアドレスが空でないことを確認
+        //メールアドレスが空でないことの確認
         if (email.trim() === '') {
             setEmailError('メールアドレスを入力してください');
             return;
         }
 
-        // メールアドレスが一致するか確認
-        if (email.trim() === loggedInEmail.trim()) {
-            const reservationData = { name, phone, email, service, staff, request };
+        // 予約データを保存する処理
+        const reservationData = { name, phone, email, service, staff, request, dateTime };
+        try {
             await saveReservation(reservationData);
             navigate('/reservation-summary', { state: reservationData });
-        } else {
-            setEmailError('登録したメールアドレスを入力してください');
+        } catch (error) {
+            console.error("予約保存エラー:", error);
+            setError('予約の保存に失敗しました。');
         }
     };
 
     const handleBack = () => {
-        navigate('/reservation', { state: { loggedInEmail, name, phone, email, service, staff, request } });
+        navigate('/reservation', { state: { userEmail, name, phone, email, service, staff, request, selectedDateTime: null} });
     };
 
     return (
@@ -79,6 +76,7 @@ const ReservationForm = () => {
             </button>
             <h1>予約フォーム</h1>
             <form onSubmit={handleSubmit}>
+                <p>予約日時:{dateTime}</p>
                 <div>
                     <label>氏名</label>
                     <input 
@@ -193,6 +191,6 @@ const ReservationForm = () => {
             </form>
         </div>
     );
-};
+}
 
 export default ReservationForm;
