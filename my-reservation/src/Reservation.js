@@ -15,27 +15,40 @@ const ReservationTable = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [selectedDateTime, setSelectedDateTime] = useState(null); // 選択した日時を保持
     const [selectedTime, setSelectedTime] = useState(null); // 選択した時間を保持
+    const [confirmedReservations, setConfirmedReservations] = useState(Array.from({ length: 14 }, () => Array(24).fill(false))); // 確定した予約を管理
+    
+    // 予約が保存されたかどうかのフラグを管理
+    const { isSaved, dateIndex, timeIndex } = location.state || {}; // location.stateからisSaved、dateIndex、timeIndexを取得
 
+    // 予約が保存された場合にフラグをリセット
+    useEffect(() => {
+        if (isSaved) {
+            // 確定した予約を更新
+            setConfirmedReservations(prev => {
+                const newReservations = [...prev];
+                if (dateIndex !== undefined && timeIndex !== undefined) {
+                    newReservations[dateIndex][timeIndex] = true; // 予約済みに設定
+                }
+                return newReservations;
+            });
+        }
+    }, [isSaved, dateIndex, timeIndex]); // dateIndexとtimeIndexも依存配列に追加
 
     // 9:00と9:30の枠を予約済みに設定
     const setInitialReservations = () => {
-        const newReservations = [...reservations];
-        newReservations.forEach((day, index) => {
+        const newReservations = Array.from({ length: 14 }, () => Array(24).fill(false)); // 新しい予約配列を初期化
+        newReservations.forEach(day => {
             day[0] = true; // 9:00
             day[1] = true; // 9:30
         });
-        setReservations(newReservations); //予約済みの枠を設定
+        setReservations(newReservations); // 状態を更新
     };
-
-    useEffect(() => {
-        setInitialReservations();
-    }, []); //初期化
-
+    
     const handleCellClick = (timeIndex, dateIndex) => {
         const time = timeSlots[timeIndex];
         const date = dates[dateIndex];
         
-        if (time === "18:00" || time === "18:30") {
+        if (time === "18:00" || time === "18:30" || time === "9:00" || time === "9:30") {
             alert("営業時間外です。◎が予約可能時間です。");
         } else if (!reservations[dateIndex][timeIndex]) {
             // 日付、時間、曜日を取得
@@ -44,9 +57,9 @@ const ReservationTable = () => {
             const formattedDateTime = `${formattedDate} (${dayOfWeek}) ${time}~`; // フォーマット
 
             setSelectedDateTime(formattedDateTime); // 選択した日時を設定
-            navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime} });
+            navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime } });
         } else {
-            handleConfirm(timeIndex, dateIndex);
+            handleConfirm(timeIndex, dateIndex); // 予約が確定した場合
         }
     };
 
@@ -54,14 +67,34 @@ const ReservationTable = () => {
     const updateReservations = (timeIndex, dateIndex) => {
         const newReservations = [...reservations];
         newReservations[dateIndex][timeIndex] = true; // 予約済みに設定
-        setReservations(newReservations);//予約情報を更新
+        setReservations(newReservations); // 予約情報を更新
     };
 
     // 予約確定後に呼び出す関数
-    const handleConfirm = async (timeIndex, dateIndex,reservationData) => {
+    const handleConfirm = async (timeIndex, dateIndex) => {
+        const reservationData = { /* 予約データをここに設定 */ };
         const reservationId = await saveReservation(reservationData); // 予約情報を保存し、IDを取得
         await updateReservationStatus(reservationId); // ステータスを更新
-        updateReservations(timeIndex, dateIndex); // カレンダーを更新
+
+        // 確定した予約を更新
+        setConfirmedReservations(prev => {
+            const newReservations = [...prev];
+            newReservations[dateIndex][timeIndex] = true; // 確定した予約を更新
+            return newReservations;
+        });
+        
+        // カレンダーを再レンダリングするために状態を更新
+        setReservations(prev => {
+            const newReservations = [...prev];
+            newReservations[dateIndex][timeIndex] = true; // カレンダーの状態も更新
+            return newReservations;
+        });
+
+        // 状態を確認するためのログ
+        console.log("Confirmed Reservations:", confirmedReservations);
+        console.log("Reservations:", reservations);
+
+        // 予約が確定したことを示すダイアログを表示
         setShowDialog(true);
     };
 
@@ -124,8 +157,7 @@ const ReservationTable = () => {
             <table className="reservation-table">
                 <thead>
                 <tr>
-                   <th colSpan={16} className="month-cell">{new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth())
-                   .toLocaleString('default', { month: 'long' })}の予約状況</th> {/* ここを追加 */}
+                   <th colSpan={16} className="month-cell">{new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth()).toLocaleString('default', { month: 'long' })}の予約状況</th>
                 </tr>
                     <tr>
                         <th className="day-cell" rowSpan={2}>時間</th>
@@ -148,16 +180,19 @@ const ReservationTable = () => {
                                 <td key={dateIndex} className={`time-cell ${time === "18:00" || time === "18:30" ? 
                                 'light-gray-background' : (time === "9:00" || time === "9:30" ? 'reserved-background' : 
                                 (timeIndex >= 3 && timeIndex <= 12 ? 'custom-background' : ''))}`} onClick={() => handleCellClick(timeIndex, dateIndex)}>
-                                   
                                    {time === "9:00" || time === "9:30" ? (
                                         <span className="reserved">-</span> // 9:00と9:30の表示
                                     ) : (time === "18:00" || time === "18:30" ? (
                                         <span className="reserved">-</span> // 18:00と18:30の表示
-                                    ) : (reservation[timeIndex] ? (
-                                        <span className="reserved">×</span>
                                     ) : (
-                                        <span className="available">◎</span>
-                                    )))}
+                                        <>
+                                            {confirmedReservations[dateIndex][timeIndex] ? (
+                                                <span className="reserved">×</span>
+                                            ) : (
+                                                <span className="available">◎</span>
+                                            )}
+                                        </>
+                                    ))}
                                 </td>
                             ))}
                             <td className={`time-cell left-right-background`}>{time}</td>
@@ -169,7 +204,7 @@ const ReservationTable = () => {
             <button className="prev-week-button" onClick={handleScrollToPreviousWeek}>前の週</button>
             <span className="available-indicator">◎：予約可能時間です。</span>
             <span className="reserved-indicator">×：予約済みです。</span>
-            <span className="closed-indicator">ー：営業時間外です。</span>
+            <span className="closed-indicator">ー営業時間外です。</span>
             <button className="next-week-button" onClick={handleScrollToNextWeek}>次の週</button>
         </div>
         <button className="back-button" onClick={() => navigate('/')}>戻る</button> 

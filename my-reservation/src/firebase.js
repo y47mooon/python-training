@@ -13,13 +13,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 export const login = async (email, password) => {
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        console.log("ログイン成功");
+        //console.log("ログイン成功");
     } catch (error) {
         console.error("ログインエラー:", error);
         throw error; // エラーを呼び出し元に伝える
@@ -29,7 +29,7 @@ export const login = async (email, password) => {
 export const registerUser = async (email, password) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        console.log("ユーザー登録成功:", userCredential.user);
+        //console.log("ユーザー登録成功:", userCredential.user);
     } catch (error) {
         console.error("ユーザー登録エラー:", error);
         throw error; // エラーを呼び出し元に伝える

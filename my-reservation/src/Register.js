@@ -34,7 +34,7 @@ const Register = () => {
             await registerUser(email, password);
             setShowDialog(true);
         } catch (error) {
-            console.error("登録エラーの詳細:", error); // エラーの詳細を表示
+            //console.error("登録エラーの詳細:", error); // エラーの詳細を表示
             setError('登録に失敗しました: ' + error.message);
         }
     };

@@ -10,7 +10,7 @@ const ReservationForm = () => {
     
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState(userEmail ||'');
     const [service, setService] = useState('');
     const [error, setError] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -21,7 +21,6 @@ const ReservationForm = () => {
     const [dateTime, setDateTime] = useState(selectedDateTime || '');
 
     useEffect(() => {
-        // 予約確認画面から戻った際に入力した値を設定
         if (location.state) {
             const { name, phone, email, service, staff, request } = location.state;
             setName(name || '');
@@ -30,9 +29,11 @@ const ReservationForm = () => {
             setService(service || '');
             setStaff(staff || '');
             setRequest(request || '');
-            setDateTime(dateTime || '');
+            setDateTime(selectedDateTime || '');
+
+            console.log("Selected DateTime in Form:", selectedDateTime);
         }
-    }, [location.state, userEmail,selectedDateTime]);
+    }, [location.state, userEmail]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,20 +54,15 @@ const ReservationForm = () => {
             setEmailError('メールアドレスを入力してください');
             return;
         }
-
-        // 予約データを保存する処理
+        // 予約データを作成
         const reservationData = { name, phone, email, service, staff, request, dateTime };
-        try {
-            await saveReservation(reservationData);
-            navigate('/reservation-summary', { state: reservationData });
-        } catch (error) {
-            console.error("予約保存エラー:", error);
-            setError('予約の保存に失敗しました。');
-        }
+    
+        // ReservationSummaryにデータを渡す
+        navigate('/reservation-summary', { state: reservationData });
     };
 
     const handleBack = () => {
-        navigate('/reservation', { state: { userEmail, name, phone, email, service, staff, request, selectedDateTime: null} });
+        navigate('/reservation', { state: { userEmail, name, phone, email, service, staff, request, selectedDateTime: dateTime } });
     };
 
     return (
@@ -76,13 +72,13 @@ const ReservationForm = () => {
             </button>
             <h1>予約フォーム</h1>
             <form onSubmit={handleSubmit}>
-                <p>予約日時:{dateTime}</p>
+                <p>予約日時: {dateTime}</p>
                 <div>
                     <label>氏名</label>
                     <input 
                         type="text" 
                         className={styles.reservationInputField}
-                        value={name} 
+                        value={name || ''} 
                         onChange={(e) => setName(e.target.value)} 
                         required 
                     />

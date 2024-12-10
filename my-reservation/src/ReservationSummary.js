@@ -1,31 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Summary.module.css';
-import { saveReservation } from './reservationService';
+import { saveReservation, getReservationsFromFirestore } from './reservationService';
 import { updateReservationStatus } from './updateReservationStatus';
 
 const ReservationSummary = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { selectedDateTime, name, phone, email, service, staff, request } = location.state || {};
+    const { name, phone, email, service, staff, request, dateTime } = location.state || {};
     const [showDialog, setShowDialog] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+
+    const [dateTimeState, setDateTime] = useState(dateTime || '');
+
+    useEffect(() => {
+        console.log("受け取った日時:", dateTime);
+        if (dateTime) {
+            setDateTime(dateTime);
+        }
+    }, [dateTime]);
 
     const handleConfirm = async () => {
-        const reservationData = { name, phone, email, service, staff, request };
-        const reservationId = await saveReservation(reservationData); // 予約情報を保存し、IDを取得
-        await updateReservationStatus(reservationId); // ステータスを更新
-        setShowDialog(true);
+        if (isSaved) {
+            console.log("予約はすでに保存されています。");
+            return;
+        }
+
+        const reservationData = { name, phone, email, service, staff, request, dateTimeState };
+
+        const existingReservations = await checkExistingReservations(dateTimeState);
+        if (existingReservations) {
+            console.log("この日付の予約はすでに存在します。");
+            return;
+        }
+
+        console.log("DateTime on confirm:", dateTimeState);
+
+        try {
+            await saveReservation(reservationData);
+            setIsSaved(true);
+            setShowDialog(true);
+        } catch (error) {
+            console.error("予約保存エラー:", error);
+        }
+    };
+
+    const checkExistingReservations = async (dateTime) => {
+        const reservations = await getReservationsFromFirestore();
+        return reservations.some(reservation => reservation.dateTime === dateTime);
     };
 
     const handleCloseDialog = () => {
         setShowDialog(false);
-        navigate('/reservation', { state: { name, phone, email, service, staff, request } });
+        navigate('/reservation', { state: { name, phone, email, service, staff, request, isSaved: true } });
     };
 
     const handleBack = () => {
         navigate('/reservation-form', { 
             state: { 
-                selectedDateTime, 
+                selectedDateTime: dateTime || dateTime, 
                 name,
                 phone, 
                 email, 
@@ -40,7 +73,7 @@ const ReservationSummary = () => {
         <div className={styles.summaryContainer}>
             <h3 className={`${styles.summaryTitle}`}>ご予約内容</h3>
             <div className={styles.container}>
-                <div className={styles.summaryDetails}>
+                <div className={styles.storeInfo}>
                     <h3>店舗名: 〇〇</h3>
                     <p>
                         <span>📞</span> 00-0000-0000
@@ -50,9 +83,12 @@ const ReservationSummary = () => {
                             日本 - japan
                         </a>
                     </p>
+                    <div>
+            <img src="https://photo-chips.com/user_data/00007330_7c9157.jpg" alt="容室" className={styles.bottomLeftImage} /> {/* 画像を追加 */}
+            </div>
                 </div>
                 <div className={styles.summaryDetails}>
-                    <div className={styles.summaryItem}>予約日時: {selectedDateTime}</div>
+                    <div className={styles.summaryItem}>予約日時: {dateTime}</div>
                     <div className={styles.summaryItem}>氏名: {name}</div>
                     <div className={styles.summaryItem}>電話番号: {phone}</div>
                     <div className={styles.summaryItem}>E-mail: {email}</div>

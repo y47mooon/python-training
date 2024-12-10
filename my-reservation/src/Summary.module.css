@@ -41,10 +41,12 @@
 .storeInfo {
     border: 1px solid #ccc; /* 枠線の色とスタイル */
     border-radius: 10px; /* 角を丸くする */
-    background-color: rgb(146, 215, 255); /* 薄い水色の背景 */
-    padding: 30px; /* 内側の余白 */
+    background-color: rgb(144, 213, 253); /* 薄い水色の背景 */
+    padding: 20px; /* 内側の余白 */
     margin: 10px; /* 上下の余白を狭める */
-    width: 160%; /* 幅を指定 */
+    width: 90%; /* 幅を指定 */
+    pointer-events: none;
+    height:130px;
 }
 
 .container {
@@ -58,11 +60,13 @@
 .summaryDetails {
     border: 1px solid #ccc; /* 枠線の色とスタイル */
     border-radius: 10px; /* 角を丸くする */
-    background-color: rgb(255, 255, 255); /* 白色の背景 */
-    padding: 35px; /* 内側の余白 */
+    background-color: rgb(244, 186, 237); /* 白色の背景 */
+    padding: 30px; /* 内側の余白 */
     margin: 10px; /* 上下の余白を狭める */
-    width: 300%; /* 幅を指定 */
-    height: 280px;
+    width: 100%; /* 幅を指定 */
+    height: 340px;
+    pointer-events: none;
+    overflow: auto;
 }
 
 .summaryTitle {
@@ -74,4 +78,13 @@
     width: 100%;
     border-bottom: 2px solid #333; /* 下線を追加 */
     font-family: 'Hiragino Sans'; /*フォントとを変更*/
+}
+
+.bottomLeftImage {
+    width: 100%; /* 幅を100%に設定 */
+    pointer-events: none; /* マウスイベントを無視 */
+    object-fit: contain; /* 比率を維持しつつ収める */
+    border-radius: 10px;
+    margin-top: 50px; /* 画像を上に移動 */
+    height: 200px;
 }
