@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useUserContext } from './UserContext';
 import styles from './ReservationForm.module.css';
 import { saveReservation } from './reservationService';
+import { formatDateTime } from './dateUtils';
 
 const ReservationForm = () => {
     const location = useLocation();
@@ -16,13 +17,14 @@ const ReservationForm = () => {
     const [emailError, setEmailError] = useState('');
     const [staff, setStaff] = useState('');
     const [request, setRequest] = useState('');
+    const [firetimestate, setFiretimestate] = useState('');
     const navigate = useNavigate();
 
     const [dateTime, setDateTime] = useState(selectedDateTime || '');
 
     useEffect(() => {
         if (location.state) {
-            const { name, phone, email, service, staff, request } = location.state;
+            const { name, phone, email, service, staff, request, firetimestate } = location.state;
             setName(name || '');
             setPhone(phone || '');
             setEmail(email || userEmail);
@@ -30,6 +32,7 @@ const ReservationForm = () => {
             setStaff(staff || '');
             setRequest(request || '');
             setDateTime(selectedDateTime || '');
+            setFiretimestate(firetimestate || '');
 
             console.log("Selected DateTime in Form:", selectedDateTime);
         }
@@ -55,8 +58,19 @@ const ReservationForm = () => {
             return;
         }
         // 予約データを作成
-        const reservationData = { name, phone, email, service, staff, request, dateTime };
+        const reservationData = { 
+            name, 
+            phone, 
+            email, 
+            service, 
+            staff, 
+            request, 
+            dateTime: dateTime instanceof Date ? dateTime : new Date(dateTime),
+            firetimestate 
+        };
     
+        // 予約を保存
+        await saveReservation(reservationData);
         // ReservationSummaryにデータを渡す
         navigate('/reservation-summary', { state: reservationData });
     };
@@ -72,7 +86,9 @@ const ReservationForm = () => {
             </button>
             <h1>予約フォーム</h1>
             <form onSubmit={handleSubmit}>
-                <p>予約日時: {dateTime}</p>
+                <div>
+                    予約日時: {formatDateTime(new Date(dateTime))}
+                </div>
                 <div>
                     <label>氏名</label>
                     <input 

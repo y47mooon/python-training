@@ -4,7 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
 import { updateReservationStatus } from './updateReservationStatus';
-import { saveReservation, getReservationsFromFirestore } from './reservationService';
+import { saveReservation, getReservationsFromFirestore, getReservationsForDateRange } from './reservationService';
+import { formatDateTime } from './dateUtils'; // dateUtilsからインポート
 
 const ReservationTable = () => {
     const navigate = useNavigate();
@@ -36,58 +37,56 @@ const ReservationTable = () => {
 
     useEffect(() => {
         const fetchReservations = async () => {
-            const reservations = await getReservationsFromFirestore();
-            const newConfirmedReservations = Array.from({ length: 14 }, () => Array(24).fill(false));
+            const today = new Date();
+            const twoWeeksLater = new Date(today);
+            twoWeeksLater.setDate(today.getDate() + 14);
 
-            reservations.forEach(reservation => {
-                const reservationTime = new Date(reservation.datetime);
-                const reservationHour = reservationTime.getHours();
-                const reservationMinute = reservationTime.getMinutes();
-                const reservationDate = reservationTime.getDate();
+            try {
+                const reservations = await getReservationsForDateRange(today, twoWeeksLater);
+                const newConfirmedReservations = Array.from({ length: 14 }, () => Array(24).fill(false));
 
-                // 予約が入っている時間枠を×に設定
-                const timeIndex = (reservationHour - 9) * 2 + (reservationMinute / 30);
-                const dateIndex = reservationDate - new Date().getDate(); // 今日の日付からのオフセット
+                reservations.forEach(reservation => {
+                    const reservationDate = reservation.datetime;
+                    const dayIndex = Math.floor((reservationDate - today) / (1000 * 60 * 60 * 24));
+                    const timeIndex = (reservationDate.getHours() - 9) * 2 + (reservationDate.getMinutes() / 30);
 
-                if (dateIndex >= 0 && dateIndex < 14 && timeIndex >= 0 && timeIndex < 24) {
-                    newConfirmedReservations[dateIndex][timeIndex] = true; // 予約済みとしてマーク
-                }
-            });
+                        if (dayIndex >= 0 && dayIndex < 14 && timeIndex >= 0 && timeIndex < 24) {
+                            newConfirmedReservations[dayIndex][timeIndex] = true;
+                    }
+                });
 
-            setConfirmedReservations(newConfirmedReservations); // 確定した予約を更新
+                setConfirmedReservations(newConfirmedReservations);
+            } catch (error) {
+                console.error("予約データの取得に失敗しました:", error);
+            }
         };
 
         fetchReservations();
-    }, []); // コンポーネントがマウントされたときに予約を取得
+    }, [currentWeekOffset]);
 
-    // 9:00と9:30の枠を予約済みに設定
-    const setInitialReservations = () => {
-        const newReservations = Array.from({ length: 14 }, () => Array(24).fill(false)); // 新しい予約配列を初期化
-        newReservations.forEach(day => {
-            day[0] = true; // 9:00
-            day[1] = true; // 9:30
-        });
-        setReservations(newReservations); // 状態を更新
-    };
-    
     const handleCellClick = (timeIndex, dateIndex) => {
         const time = timeSlots[timeIndex];
         const date = dates[dateIndex];
-        
+
+        // 日付と時間を組み合わせてDateオブジェクトを作成
+        const [hour, minute] = time.split(':').map(Number);
+        const formattedDateTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute);
+
+        // 予約済みの時間を確認
+        if (confirmedReservations[dateIndex][timeIndex]) {
+            alert("この時間は予約済みです。");
+            return; // 予約済みの場合は処理を中断
+        }
+
+        // 営業時間外のチェック
         if (time === "18:00" || time === "18:30" || time === "9:00" || time === "9:30") {
             alert("営業時間外です。◎が予約可能時間です。");
-        } else if (confirmedReservations[dateIndex][timeIndex]) {
-            // 予約が入っている場合
-            alert("この時間は予約済みです。");
-        } else {
-            // 日付、時間、曜日を取得
-            const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
-            const dayOfWeek = days[date.getDay()]; // 曜日を取得
-            const formattedDateTime = `${formattedDate} (${dayOfWeek}) ${time}~`; // フォーマット
-
-            setSelectedDateTime(formattedDateTime); // 選択した日時を設定
-            navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime } });
+            return; // 営業時間外の場合も処理を中断
         }
+
+        // 選択した日時を設定
+        setSelectedDateTime(formattedDateTime);
+        navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime } });
     };
 
     // 予約状況を更新する関数
@@ -117,7 +116,7 @@ const ReservationTable = () => {
             return newReservations;
         });
 
-        // 状態を確認するためのログ
+        // 状態を認するためのログ
         console.log("Confirmed Reservations:", confirmedReservations);
         console.log("Reservations:", reservations);
 

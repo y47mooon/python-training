@@ -3,18 +3,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Summary.module.css';
 import { saveReservation, getReservationsFromFirestore } from './reservationService';
 import { updateReservationStatus } from './updateReservationStatus';
+import { formatDateTime } from './dateUtils';
 
 const ReservationSummary = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { name, phone, email, service, staff, request, dateTime } = location.state || {};
+    const { name, phone, email, service, staff, request, dateTime, firetimestate } = location.state || {};
     const [showDialog, setShowDialog] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
     const [dateTimeState, setDateTime] = useState(dateTime || '');
 
     useEffect(() => {
-        console.log("受け取った日時:", dateTime);
+        console.log("受け取った日時データ:", dateTime);
+        console.log("Date オブジェクトに変換:", new Date(dateTime));
         if (dateTime) {
             setDateTime(dateTime);
         }
@@ -26,7 +28,11 @@ const ReservationSummary = () => {
             return;
         }
 
-        const reservationData = { name, phone, email, service, staff, request, dateTimeState };
+        const reservationData = {
+            ...otherData,
+            datetime: new Date(dateTime),
+            status: '予約済'
+        };
 
         const existingReservations = await checkExistingReservations(dateTimeState);
         if (existingReservations) {
@@ -47,7 +53,11 @@ const ReservationSummary = () => {
 
     const checkExistingReservations = async (dateTime) => {
         const reservations = await getReservationsFromFirestore();
-        return reservations.some(reservation => reservation.dateTime === dateTime);
+        return reservations.some(reservation => {
+            const reservationDateTime = reservation.datetime?.toDate?.() || new Date(reservation.datetime);
+            const checkDateTime = new Date(dateTime);
+            return reservationDateTime.getTime() === checkDateTime.getTime();
+        });
     };
 
     const handleCloseDialog = () => {
@@ -84,11 +94,11 @@ const ReservationSummary = () => {
                         </a>
                     </p>
                     <div>
-            <img src="https://photo-chips.com/user_data/00007330_7c9157.jpg" alt="容室" className={styles.bottomLeftImage} /> {/* 画像を追加 */}
+            <img src="https://photo-chips.com/user_data/00007330_7c9157.jpg" alt="容" className={styles.bottomLeftImage} /> {/* 画像を追加 */}
             </div>
                 </div>
                 <div className={styles.summaryDetails}>
-                    <div className={styles.summaryItem}>予約日時: {dateTime}</div>
+                    <div className={styles.summaryItem}>予約日時: {formatDateTime(new Date(dateTime))} {/* dateTimeを文字列に変換 */}</div>
                     <div className={styles.summaryItem}>氏名: {name}</div>
                     <div className={styles.summaryItem}>電話番号: {phone}</div>
                     <div className={styles.summaryItem}>E-mail: {email}</div>
