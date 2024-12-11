@@ -45,7 +45,6 @@
     padding: 20px; /* 内側の余白 */
     margin: 10px; /* 上下の余白を狭める */
     width: 90%; /* 幅を指定 */
-    pointer-events: none;
     height:130px;
 }
 
@@ -65,7 +64,6 @@
     margin: 10px; /* 上下の余白を狭める */
     width: 100%; /* 幅を指定 */
     height: 340px;
-    pointer-events: none;
     overflow: auto;
 }
 
@@ -82,7 +80,6 @@
 
 .bottomLeftImage {
     width: 100%; /* 幅を100%に設定 */
-    pointer-events: none; /* マウスイベントを無視 */
     object-fit: contain; /* 比率を維持しつつ収める */
     border-radius: 10px;
     margin-top: 50px; /* 画像を上に移動 */

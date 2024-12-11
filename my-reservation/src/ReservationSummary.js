@@ -125,7 +125,7 @@ const dialogStyle = {
     padding: '20px',
     backgroundColor: 'white',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-    zIndex: 1000,
+    zIndex: 2000,
 };
 
 export default ReservationSummary;

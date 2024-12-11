@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
 import { updateReservationStatus } from './updateReservationStatus';
-import { saveReservation } from './reservationService';
+import { saveReservation, getReservationsFromFirestore } from './reservationService';
 
 const ReservationTable = () => {
     const navigate = useNavigate();
@@ -34,6 +34,32 @@ const ReservationTable = () => {
         }
     }, [isSaved, dateIndex, timeIndex]); // dateIndexとtimeIndexも依存配列に追加
 
+    useEffect(() => {
+        const fetchReservations = async () => {
+            const reservations = await getReservationsFromFirestore();
+            const newConfirmedReservations = Array.from({ length: 14 }, () => Array(24).fill(false));
+
+            reservations.forEach(reservation => {
+                const reservationTime = new Date(reservation.datetime);
+                const reservationHour = reservationTime.getHours();
+                const reservationMinute = reservationTime.getMinutes();
+                const reservationDate = reservationTime.getDate();
+
+                // 予約が入っている時間枠を×に設定
+                const timeIndex = (reservationHour - 9) * 2 + (reservationMinute / 30);
+                const dateIndex = reservationDate - new Date().getDate(); // 今日の日付からのオフセット
+
+                if (dateIndex >= 0 && dateIndex < 14 && timeIndex >= 0 && timeIndex < 24) {
+                    newConfirmedReservations[dateIndex][timeIndex] = true; // 予約済みとしてマーク
+                }
+            });
+
+            setConfirmedReservations(newConfirmedReservations); // 確定した予約を更新
+        };
+
+        fetchReservations();
+    }, []); // コンポーネントがマウントされたときに予約を取得
+
     // 9:00と9:30の枠を予約済みに設定
     const setInitialReservations = () => {
         const newReservations = Array.from({ length: 14 }, () => Array(24).fill(false)); // 新しい予約配列を初期化
@@ -50,7 +76,10 @@ const ReservationTable = () => {
         
         if (time === "18:00" || time === "18:30" || time === "9:00" || time === "9:30") {
             alert("営業時間外です。◎が予約可能時間です。");
-        } else if (!reservations[dateIndex][timeIndex]) {
+        } else if (confirmedReservations[dateIndex][timeIndex]) {
+            // 予約が入っている場合
+            alert("この時間は予約済みです。");
+        } else {
             // 日付、時間、曜日を取得
             const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
             const dayOfWeek = days[date.getDay()]; // 曜日を取得
@@ -58,8 +87,6 @@ const ReservationTable = () => {
 
             setSelectedDateTime(formattedDateTime); // 選択した日時を設定
             navigate('/reservation-form', { state: { email: loggedInEmail, selectedDateTime: formattedDateTime } });
-        } else {
-            handleConfirm(timeIndex, dateIndex); // 予約が確定した場合
         }
     };
 

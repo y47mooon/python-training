@@ -24,7 +24,8 @@
     cursor: pointer;
 }
 .reserved {
-    color: black; /* ×の文字色を黒に設定（必要に応じて変更） */
+    color: black; /* ×の文字色を黒に設定 */
+    font-weight: bold; /* 太字に設定 */
 }
 .navigation {
     display: flex;
