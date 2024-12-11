@@ -2,21 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Summary.module.css';
 import { saveReservation, getReservationsFromFirestore } from './reservationService';
-import { updateReservationStatus } from './updateReservationStatus';
 import { formatDateTime } from './dateUtils';
 
 const ReservationSummary = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { name, phone, email, service, staff, request, dateTime, firetimestate } = location.state || {};
+    const { name, phone, email, service, staff, request, dateTime } = location.state || {};
     const [showDialog, setShowDialog] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
-
     const [dateTimeState, setDateTime] = useState(dateTime || '');
 
     useEffect(() => {
-        console.log("受け取った日時データ:", dateTime);
-        console.log("Date オブジェクトに変換:", new Date(dateTime));
         if (dateTime) {
             setDateTime(dateTime);
         }
@@ -29,9 +25,13 @@ const ReservationSummary = () => {
         }
 
         const reservationData = {
-            ...otherData,
-            datetime: new Date(dateTime),
-            status: '予約済'
+            name,
+            phone,
+            email,
+            service,
+            staff,
+            request,
+            dateTime: dateTimeState
         };
 
         const existingReservations = await checkExistingReservations(dateTimeState);
@@ -40,10 +40,8 @@ const ReservationSummary = () => {
             return;
         }
 
-        console.log("DateTime on confirm:", dateTimeState);
-
         try {
-            await saveReservation(reservationData);
+            const reservationId = await saveReservation(reservationData);
             setIsSaved(true);
             setShowDialog(true);
         } catch (error) {

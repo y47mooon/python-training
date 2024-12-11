@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './ReservationTable.css';
 import ReservationForm from './ReservationForm';
-import { updateReservationStatus } from './updateReservationStatus';
 import { saveReservation, getReservationsFromFirestore, getReservationsForDateRange } from './reservationService';
 import { formatDateTime } from './dateUtils'; // dateUtilsからインポート
 
@@ -100,7 +99,6 @@ const ReservationTable = () => {
     const handleConfirm = async (timeIndex, dateIndex) => {
         const reservationData = { /* 予約データをここに設定 */ };
         const reservationId = await saveReservation(reservationData); // 予約情報を保存し、IDを取得
-        await updateReservationStatus(reservationId); // ステータスを更新
 
         // 確定した予約を更新
         setConfirmedReservations(prev => {

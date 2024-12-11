@@ -5,30 +5,30 @@ import { collection, addDoc, getDocs, query, where, Timestamp, updateDoc, doc } 
 // 日時をFirestore Timestampに変換するユーティリティ関数
 const convertToFirestoreTimestamp = (dateTime) => {
     if (dateTime instanceof Date) {
-        return Timestamp.fromDate(dateTime); // DateオブジェクトをTimestampに変換
+        return Timestamp.fromDate(dateTime);
     }
-
-    const [datePart, timePart] = dateTime.split(' ');
-    const [year, month, day] = datePart.match(/(\d+)年(\d+)月(\d+)日/).slice(1).map(Number);
-    const [hour, minute] = timePart.split('~')[0].split(':').map(Number);
-    
-    return Timestamp.fromDate(new Date(year, month - 1, day, hour, minute));
+    return Timestamp.fromDate(new Date(dateTime));
 };
 
+// 予約データを保存する関数
 export const saveReservation = async (reservationData) => {
     try {
-        // 日時データを Timestamp に変換
         const firestoreData = {
-            ...reservationData,
+            name: reservationData.name,
+            phone: reservationData.phone,
+            email: reservationData.email,
+            service: reservationData.service,
+            staff: reservationData.staff,
+            request: reservationData.request,
             datetime: convertToFirestoreTimestamp(reservationData.dateTime),
-            status: '予約済', // 予約ステータスを追加
-            createdAt: Timestamp.now(),
+            status: '予約済',
+            createdAt: Timestamp.now()
         };
 
         const docRef = await addDoc(collection(db, 'reservations'), firestoreData);
         return docRef.id;
     } catch (error) {
-        console.error("予約保存エラー:", error.message);
+        console.error("予約保存エラー:", error);
         throw error;
     }
 };
@@ -54,7 +54,7 @@ export const getReservationsForDateRange = async (startDate, endDate) => {
     }
 };
 
-// getReservationsFromFirestore関数を追加
+// すべての予約を取得する関数
 export const getReservationsFromFirestore = async () => {
     try {
         const reservationsSnapshot = await getDocs(collection(db, 'reservations'));
@@ -65,15 +65,5 @@ export const getReservationsFromFirestore = async () => {
     } catch (error) {
         console.error("予約取得エラー:", error);
         return [];
-    }
-};
-
-export const updateReservationStatus = async (reservationId) => {
-    try {
-        await updateDoc(doc(db, 'reservations', reservationId), {
-            status: '予約済'
-        });
-    } catch (error) {
-        console.error("ステータス更新エラー:", error);
     }
 };
