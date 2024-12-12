@@ -5,25 +5,33 @@ import { saveReservation, getReservationsFromFirestore } from './reservationServ
 import { formatDateTime } from './dateUtils';
 
 const ReservationSummary = () => {
+    //ロケーションの取得
     const location = useLocation();
     const navigate = useNavigate();
     const { name, phone, email, service, staff, request, dateTime } = location.state || {};
+    //ダイアログ時の表示
     const [showDialog, setShowDialog] = useState(false);
+    //予約保存
     const [isSaved, setIsSaved] = useState(false);
+    //日時の取得
     const [dateTimeState, setDateTime] = useState(dateTime || '');
 
+    //datetimeが変更されたとき状態を更新
     useEffect(() => {
         if (dateTime) {
             setDateTime(dateTime);
         }
     }, [dateTime]);
 
+    //予約確定の関数
     const handleConfirm = async () => {
+        //すでに予約済の場合
         if (isSaved) {
             console.log("予約はすでに保存されています。");
             return;
         }
 
+        //予約データをオブジェクトとして作成
         const reservationData = {
             name,
             phone,
@@ -33,13 +41,15 @@ const ReservationSummary = () => {
             request,
             dateTime: dateTimeState
         };
-
+        
+        //既存の予約を確認
         const existingReservations = await checkExistingReservations(dateTimeState);
         if (existingReservations) {
             console.log("この日付の予約はすでに存在します。");
             return;
         }
-
+    
+        //予約を保存、成功時状態を更新
         try {
             const reservationId = await saveReservation(reservationData);
             setIsSaved(true);
@@ -49,20 +59,26 @@ const ReservationSummary = () => {
         }
     };
 
+    //既存の予約確認
     const checkExistingReservations = async (dateTime) => {
+        //firebaseから予約を取得
         const reservations = await getReservationsFromFirestore();
+        //予約がすでに存在するか確認
         return reservations.some(reservation => {
             const reservationDateTime = reservation.datetime?.toDate?.() || new Date(reservation.datetime);
             const checkDateTime = new Date(dateTime);
             return reservationDateTime.getTime() === checkDateTime.getTime();
-        });
+     });
     };
 
+    //ダイアログを閉じる
     const handleCloseDialog = () => {
         setShowDialog(false);
+        //予約カレンダーに遷移
         navigate('/reservation', { state: { name, phone, email, service, staff, request, isSaved: true } });
     };
 
+    //戻るボタン
     const handleBack = () => {
         navigate('/reservation-form', { 
             state: { 
